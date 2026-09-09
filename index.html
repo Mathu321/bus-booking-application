@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusGo - Home</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🚌 BusGo</div>
+    <div class="nav-links">
+        <a href="index.html" style="font-weight: bold; color: #0b3d91;">Home</a>
+        <a href="routes.html">Routes & Schedules</a>
+        <a href="admin/login.html" style="color: #d90429; font-weight: bold;">Admin Login</a>
+        <a href="booking.html" class="nav-btn">Book Ticket</a>
+    </div>
+</nav>
+
+<section class="page-header">
+    <p>TRAVEL SMART. TRAVEL EASY.</p>
+    <h1>Your Journey Starts Here</h1>
+    <span>Book bus tickets quickly and easily. Find your perfect journey and travel comfortably.</span>
+</section>
+
+<section class="search-section" style="max-width: 900px; margin: -40px auto 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); position: relative; z-index: 10;">
+    <div class="section-heading" style="margin-bottom: 20px;">
+        <p>FIND YOUR BUS</p>
+        <h2>Search Available Buses</h2>
+    </div>
+    <form onsubmit="searchBuses(event)" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+        <div class="input-group" style="flex: 1; min-width: 200px;">
+            <label>From</label>
+            <input type="text" id="search_source" placeholder="Enter departure city">
+        </div>
+        <div class="input-group" style="flex: 1; min-width: 200px;">
+            <label>To</label>
+            <input type="text" id="search_destination" placeholder="Enter destination">
+        </div>
+        <button type="submit" class="confirm-btn" style="height: 48px; padding: 0 30px;">Search Bus</button>
+    </form>
+</section>
+
+<section class="bus-section" style="padding: 20px 40px 60px 40px;">
+    <div class="section-heading">
+        <p>RESULTS</p>
+        <h2>Available Buses</h2>
+    </div>
+    <div class="bus-container" id="bus-container">
+        <!-- Loaded via JavaScript API -->
+    </div>
+</section>
+
+<footer>
+    <div class="footer-logo">🚌 BusGo</div>
+    <p>Bus Ticket Reservation System</p>
+    <p class="copyright">© 2026 BusGo. All Rights Reserved.</p>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sourceParam = urlParams.get('source') || '';
+    const destParam = urlParams.get('destination') || '';
+
+    if (sourceParam || destParam) {
+        document.getElementById('search_source').value = sourceParam;
+        document.getElementById('search_destination').value = destParam;
+        loadBuses(sourceParam, destParam);
+    } else {
+        loadBuses();
+    }
+});
+
+function loadBuses(source = '', destination = '') {
+    let url = 'api/get_buses.php';
+    if (source || destination) {
+        url += `?source=${encodeURIComponent(source)}&destination=${encodeURIComponent(destination)}`;
+    }
+    fetch(url)
+        .then(res => res.json())
+        .then(data => renderBuses(data))
+        .catch(err => console.error('Error fetching buses:', err));
+}
+
+function searchBuses(e) {
+    e.preventDefault();
+    const source = document.getElementById('search_source').value.trim();
+    const destination = document.getElementById('search_destination').value.trim();
+    loadBuses(source, destination);
+}
+
+function renderBuses(data) {
+    const container = document.getElementById('bus-container');
+    if (!Array.isArray(data) || data.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #777; grid-column: 1/-1;">No buses available.</p>';
+        return;
+    }
+    container.innerHTML = data.map(bus => `
+        <div class="bus-card">
+            <div class="bus-image">🚌</div>
+            <div class="bus-details">
+                <div class="bus-title">
+                    <h3>${bus.bus_name}</h3>
+                    <span class="bus-type">Standard</span>
+                </div>
+                <p class="bus-number">${bus.source} → ${bus.destination}</p>
+                <div class="bus-info">
+                    <span>🕒 ${bus.departure_time}</span>
+                    <span>💺 ${bus.total_seats} Seats</span>
+                </div>
+                <div class="bus-bottom">
+                    <span class="price">$${bus.fare}</span>
+                    <a href="booking.html?bus_id=${bus.bus_id}" class="view-btn">Book Now</a>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+</script>
+
+</body>
+</html>

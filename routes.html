@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusGo - Routes & Schedules</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🚌 BusGo</div>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="routes.html" style="font-weight: bold; color: #0b3d91;">Routes & Schedules</a>
+        <a href="admin/login.html" style="color: #d90429; font-weight: bold;">Admin Login</a>
+        <a href="booking.html" class="nav-btn">Book Ticket</a>
+    </div>
+</nav>
+
+<section class="page-header">
+    <p>NETWORK DIRECTORY</p>
+    <h1>Routes & Timings</h1>
+    <span>Explore all available destinations and schedule timings across our fleet.</span>
+</section>
+
+<section class="bus-section" style="padding: 40px;">
+    <div class="section-heading">
+        <p>TIMETABLE</p>
+        <h2>Active Routes & Schedules</h2>
+    </div>
+    <div class="bus-container" id="routes-container">
+        <!-- Loaded via JavaScript API -->
+    </div>
+</section>
+
+<footer>
+    <div class="footer-logo">🚌 BusGo</div>
+    <p>Bus Ticket Reservation System</p>
+    <p class="copyright">© 2026 BusGo. All Rights Reserved.</p>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    fetch('api/get_buses.php')
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('routes-container');
+            if (!Array.isArray(data) || data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #777; grid-column: 1/-1;">No routes available.</p>';
+                return;
+            }
+            container.innerHTML = data.map(bus => `
+                <div class="bus-card">
+                    <div class="bus-image">🗺️</div>
+                    <div class="bus-details">
+                        <div class="bus-title">
+                            <h3>${bus.bus_name}</h3>
+                            <span class="bus-type">Route Schedule</span>
+                        </div>
+                        <p class="bus-number"><strong>Route:</strong> ${bus.source} → ${bus.destination}</p>
+                        <div class="bus-info">
+                            <span>🕒 Departure: ${bus.departure_time}</span>
+                            <span>💵 Fare: ₹${bus.fare}</span>
+                        </div>
+                        <div class="bus-bottom" style="margin-top: 15px;">
+                            <span style="font-size: 0.9rem; color: #555;">💺 ${bus.total_seats} Total Seats</span>
+                            <a href="booking.html?bus_id=${bus.bus_id}" class="view-btn">Book Route</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        })
+        .catch(err => console.error('Error loading routes:', err));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusGo - Book Ticket</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🚌 BusGo</div>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="routes.html">Routes & Schedules</a>
+        <a href="admin/login.html" style="color: #d90429; font-weight: bold;">Admin Login</a>
+        <a href="booking.html" class="nav-btn" style="background-color: #0b3d91;">Book Ticket</a>
+    </div>
+</nav>
+
+<section class="page-header" style="padding: 40px 20px; min-height: auto;">
+    <p>BUSGO</p>
+    <h1>Book Your Ticket</h1>
+    <span style="display: block; margin-top: 8px;">Enter your details and reserve your seat</span>
+</section>
+
+<section class="booking-section" style="max-width: 800px; margin: 30px auto; padding: 0 15px;">
+    <form class="booking-form" onsubmit="submitBooking(event)" style="display: flex; flex-direction: column; gap: 30px;">
+        <input type="hidden" id="bus_id">
+        <input type="hidden" id="selected_seats">
+
+        <div class="booking-step" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <h3 style="color: #fca311; font-size: 0.85rem; margin-bottom: 5px;">STEP 1</h3>
+            <h4 style="color: #0b3d91; font-size: 1.2rem; margin-bottom: 20px;">Passenger Details</h4>
+            <div class="input-row" style="display: flex; gap: 20px;">
+                <div class="input-group" style="flex: 1;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem;">Full Name</label>
+                    <input type="text" id="p_name" placeholder="Enter passenger name" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem;">Phone Number</label>
+                    <input type="text" id="p_phone" placeholder="Enter phone number" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="booking-step" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <h3 style="color: #fca311; font-size: 0.85rem; margin-bottom: 5px;">STEP 2</h3>
+            <h4 style="color: #0b3d91; font-size: 1.2rem; margin-bottom: 20px;">Journey Details</h4>
+            <div id="journey-card" class="journey-card">
+                <!-- Populated via API -->
+            </div>
+        </div>
+
+        <div class="booking-step" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <h3 style="color: #fca311; font-size: 0.85rem; margin-bottom: 5px;">STEP 3</h3>
+            <h4 style="color: #0b3d91; font-size: 1.2rem; margin-bottom: 20px;">Select Your Seat</h4>
+            <div class="seat-grid-container" style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <div class="driver-seat" style="text-align: right; margin-bottom: 15px; font-weight: 500; color: #555;"><span>🧭 Driver</span></div>
+                <div class="seat-grid" id="seat-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; justify-items: center;">
+                    <!-- Populated via API -->
+                </div>
+            </div>
+        </div>
+
+        <div class="booking-summary" style="background: #0b3d91; color: white; padding: 30px; border-radius: 12px;">
+            <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Booking Summary</h3>
+            <div class="summary-row" style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.05rem;">
+                <span>Seats</span>
+                <strong id="summary-seats">Not selected</strong>
+            </div>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 15px 0;">
+            <div class="summary-row total-row" style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: #ffb703;">
+                <span>Total</span>
+                <strong id="summary-total">$0.00</strong>
+            </div>
+            <button type="submit" class="confirm-btn" style="width: 100%; background-color: #ffb703; color: #000; border: none; padding: 14px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px;">Confirm Booking</button>
+        </div>
+    </form>
+</section>
+
+<footer>
+    <div class="footer-logo">🚌 BusGo</div>
+    <p>Bus Ticket Reservation System</p>
+    <p class="copyright">© 2026 BusGo. All Rights Reserved.</p>
+</footer>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const busId = urlParams.get('bus_id');
+let busFare = 0;
+let selectedSeatsArray = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+    const journeyContainer = document.getElementById('journey-card');
+    
+    if (!busId) {
+        journeyContainer.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <p style="color: #777; margin-bottom: 15px;">No bus selected for booking.</p>
+                <a href="routes.html" class="view-btn" style="display: inline-block; text-decoration: none; background: #0b3d91; color: white; padding: 10px 20px; border-radius: 6px;">Choose a Bus Route</a>
+            </div>
+        `;
+        document.getElementById('seat-grid').innerHTML = '<p style="text-align: center; color: #777; grid-column: 1/-1;">Please select a bus route first.</p>';
+        return;
+    }
+
+    fetch(`api/get_bus_details.php?bus_id=${busId}`)
+        .then(res => res.json())
+        .then(data => {
+            const bus = data.bus;
+            const booked = data.booked_seats;
+            if (!bus) {
+                journeyContainer.innerHTML = '<p style="text-align: center; color: red;">Bus not found.</p>';
+                return;
+            }
+            
+            busFare = parseFloat(bus.fare);
+            document.getElementById('bus_id').value = bus.bus_id;
+            
+            journeyContainer.innerHTML = `
+                <div class="journey-bus" style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <span class="big-bus" style="font-size: 2rem;">🚌</span>
+                    <div>
+                        <h3 style="font-size: 1.1rem; color: #0b3d91; margin: 0;">${bus.bus_name}</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin: 2px 0 0 0;">Bus ID: #${bus.bus_id}</p>
+                    </div>
+                </div>
+                <div class="journey-route" style="display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                    <div><small style="color: #777; font-size: 0.75rem;">FROM</small><br><strong style="font-size: 1.05rem; color: #0b3d91;">${bus.source}</strong></div>
+                    <div class="journey-arrow" style="color: #fca311; font-size: 1.2rem; font-weight: bold;">→</div>
+                    <div style="text-align: right;"><small style="color: #777; font-size: 0.75rem;">TO</small><br><strong style="font-size: 1.05rem; color: #0b3d91;">${bus.destination}</strong></div>
+                </div>
+                <div class="journey-date" style="font-size: 0.95rem; color: #444; background: #e3f2fd; padding: 10px; border-radius: 6px; text-align: center;">📅 Departure: ${bus.departure_time}</div>
+            `;
+
+            const grid = document.getElementById('seat-grid');
+            let seatsHtml = '';
+            for(let i=1; i<=bus.total_seats; i++) {
+                const isBooked = booked.includes(String(i));
+                const cssClass = isBooked ? 'occupied' : 'available';
+                const clickAttr = isBooked ? '' : `onclick="toggleSeat(this, ${i})"`;
+                const inlineStyle = isBooked 
+                    ? 'background: #e5e5e5; border: 2px solid #ccc; color: #999; cursor: not-allowed; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold;'
+                    : 'background: white; border: 2px solid #0b3d91; color: #0b3d91; cursor: pointer; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold;';
+                seatsHtml += `<div class="seat ${cssClass}" ${clickAttr} style="${inlineStyle}">${i}</div>`;
+            }
+            grid.innerHTML = seatsHtml;
+        })
+        .catch(err => console.error('Error loading booking details:', err));
+});
+
+function toggleSeat(el, seatNum) {
+    if (el.classList.contains('occupied')) return;
+    
+    el.classList.toggle('selected');
+    if (el.classList.contains('selected')) {
+        el.style.background = '#0b3d91';
+        el.style.color = 'white';
+        selectedSeatsArray.push(seatNum);
+    } else {
+        el.style.background = 'white';
+        el.style.color = '#0b3d91';
+        selectedSeatsArray = selectedSeatsArray.filter(s => s !== seatNum);
+    }
+    
+    selectedSeatsArray.sort((a, b) => a - b);
+    document.getElementById('selected_seats').value = selectedSeatsArray.join(',');
+    
+    document.getElementById('summary-seats').textContent = selectedSeatsArray.length > 0 ? selectedSeatsArray.join(', ') : 'Not selected';
+    document.getElementById('summary-total').textContent = `$${(selectedSeatsArray.length * busFare).toFixed(2)}`;
+}
+
+function submitBooking(e) {
+    e.preventDefault();
+    const payload = {
+        bus_id: document.getElementById('bus_id').value,
+        passenger_name: document.getElementById('p_name').value,
+        phone: document.getElementById('p_phone').value,
+        seat_numbers: document.getElementById('selected_seats').value
+    };
+
+    if(!payload.seat_numbers) {
+        alert('Please select at least one seat.');
+        return;
+    }
+
+    fetch('api/book_ticket.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            window.location.href = `receipt.html?id=${data.booking_id}`;
+        } else {
+            alert(data.message || 'Booking failed.');
+        }
+    })
+    .catch(err => {
+        console.error('Fetch error:', err);
+        alert('An error occurred while processing your booking.');
+    });
+}
+</script>
+
+</body>
+</html>

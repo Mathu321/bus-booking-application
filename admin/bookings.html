@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusGo Admin - View Bookings</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .table-responsive {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow-x: auto;
+            padding: 20px;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+        .admin-table th, .admin-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .admin-table th {
+            background-color: #f8f9fa;
+            color: #0b3d91;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        .admin-table tr:hover {
+            background-color: #fdfdfd;
+        }
+        .badge-id {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        .badge-seat {
+            background-color: #e3f2fd;
+            color: #0b3d91;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🚌 BusGo Admin</div>
+    <div class="nav-links">
+        <a href="dashboard.html">Manage Buses</a>
+        <a href="bookings.html" style="font-weight: bold; color: #0b3d91;">View Bookings</a>
+        <a href="../index.html" class="nav-btn" style="background-color: #d90429;">Logout</a>
+    </div>
+</nav>
+
+<section class="bus-section" style="padding: 30px 20px;">
+    <div class="section-heading" style="margin-bottom: 25px;">
+        <p>CONTROL PANEL</p>
+        <h2>Customer Bookings</h2>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Passenger Name</th>
+                    <th>Bus</th>
+                    <th>Phone</th>
+                    <th>Seats</th>
+                </tr>
+            </thead>
+            <tbody id="bookings-table-body">
+                <!-- Loaded via API -->
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    fetch('../api/admin_get_bookings.php')
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('bookings-table-body');
+            if(!Array.isArray(data) || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #777; padding: 30px;">No bookings found.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(b => `
+                <tr>
+                    <td><span class="badge-id">#${b.booking_id}</span></td>
+                    <td><strong>${b.passenger_name}</strong></td>
+                    <td>${b.bus_name}</td>
+                    <td>${b.phone}</td>
+                    <td><span class="badge-seat">💺 ${b.seat_number}</span></td>
+                </tr>
+            `).join('');
+        })
+        .catch(err => {
+            console.error('Error fetching bookings:', err);
+            document.getElementById('bookings-table-body').innerHTML = '<tr><td colspan="5" style="text-align: center; color: red; padding: 30px;">Error loading bookings.</td></tr>';
+        });
+});
+</script>
+
+</body>
+</html>

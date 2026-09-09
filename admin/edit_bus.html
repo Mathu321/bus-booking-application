@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusGo - Edit Bus</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🚌 BusGo Admin</div>
+    <div class="nav-links">
+        <a href="dashboard.html">Manage Buses</a>
+        <a href="bookings.html">View Bookings</a>
+        <a href="../index.html" class="nav-btn" style="background-color: #d90429;">Logout</a>
+    </div>
+</nav>
+
+<section class="booking-section" style="max-width: 600px; margin-top: 40px;">
+    <div class="booking-form">
+        <div class="booking-heading" style="text-align: center;">
+            <p>FLEET CONTROL</p>
+            <h2 id="form-title">Add / Edit Bus</h2>
+        </div>
+        <form onsubmit="saveBus(event)">
+            <input type="hidden" id="bus_id">
+            
+            <div class="input-group" style="margin-bottom: 15px;">
+                <label>Bus Name</label>
+                <input type="text" id="bus_name" required>
+            </div>
+            
+            <div class="input-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <div class="input-group" style="flex: 1;">
+                    <label>Source</label>
+                    <input type="text" id="source" placeholder="Departure city" required>
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label>Destination</label>
+                    <input type="text" id="destination" placeholder="Arrival city" required>
+                </div>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 15px;">
+                <label>Departure Time</label>
+                <input type="datetime-local" id="departure_time" required>
+            </div>
+
+            <div class="input-row" style="display: flex; gap: 15px; margin-bottom: 25px;">
+                <div class="input-group" style="flex: 1;">
+                    <label>Total Seats</label>
+                    <input type="number" id="total_seats" value="40" required>
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label>Fare (₹)</label>
+                    <input type="number" step="0.01" id="fare" placeholder="0.00" required>
+                </div>
+            </div>
+
+            <button type="submit" class="confirm-btn">Save Bus Details</button>
+        </form>
+    </div>
+</section>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const busId = urlParams.get('id');
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (busId) {
+        document.getElementById('form-title').textContent = 'Edit Bus Details';
+        fetch(`../api/get_bus_details.php?bus_id=${busId}`)
+            .then(res => res.json())
+            .then(data => {
+                const b = data.bus;
+                if(b) {
+                    document.getElementById('bus_id').value = b.bus_id;
+                    document.getElementById('bus_name').value = b.bus_name;
+                    document.getElementById('source').value = b.source;
+                    document.getElementById('destination').value = b.destination;
+                    document.getElementById('departure_time').value = b.departure_time.replace(' ', 'T');
+                    document.getElementById('total_seats').value = b.total_seats;
+                    document.getElementById('fare').value = b.fare;
+                }
+            });
+    }
+});
+
+function saveBus(e) {
+    e.preventDefault();
+    const payload = {
+        bus_id: document.getElementById('bus_id').value || null,
+        bus_name: document.getElementById('bus_name').value,
+        source: document.getElementById('source').value,
+        destination: document.getElementById('destination').value,
+        departure_time: document.getElementById('departure_time').value.replace('T', ' '),
+        total_seats: document.getElementById('total_seats').value,
+        fare: document.getElementById('fare').value
+    };
+
+    fetch('../api/admin_save_bus.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = 'dashboard.html';
+        } else {
+            alert('Failed to save bus.');
+        }
+    });
+}
+</script>
+</body>
+</html>

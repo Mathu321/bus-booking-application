@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusGo - Booking Receipt</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .receipt-card {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .receipt-header {
+            text-align: center;
+            border-bottom: 2px dashed #ddd;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .receipt-header h2 { color: #0b3d91; }
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .print-btn {
+            display: block;
+            width: 100%;
+            margin-top: 30px;
+            padding: 14px;
+            background-color: #0b3d91;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+        }
+        .print-btn:hover { background-color: #082f70; }
+        @media print {
+            body * { visibility: hidden; }
+            .receipt-card, .receipt-card * { visibility: visible; }
+            .receipt-card { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border: none; }
+            .print-btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🚌 BusGo</div>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="routes.html">Routes & Schedules</a>
+        <a href="booking.html" class="nav-btn">Book Ticket</a>
+    </div>
+</nav>
+
+<div class="receipt-card" id="receipt-container">
+    <div class="receipt-header">
+        <h2>🚌 BusGo Ticket Receipt</h2>
+        <p>Booking Confirmation</p>
+    </div>
+    <div id="receipt-details">
+        <p style="text-align: center; color: #777;">Loading receipt...</p>
+    </div>
+    <button class="print-btn" onclick="window.print()">Print Receipt</button>
+</div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const bookingId = urlParams.get('id');
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (!bookingId) {
+        document.getElementById('receipt-details').innerHTML = '<p style="color: red; text-align: center;">Invalid booking ID.</p>';
+        return;
+    }
+
+    fetch(`api/get_receipt.php?id=${bookingId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                document.getElementById('receipt-details').innerHTML = `<p style="color: red; text-align: center;">${data.message}</p>`;
+                return;
+            }
+            const b = data.booking;
+            const seatCount = b.seat_number.split(',').length;
+            const totalFare = seatCount * parseFloat(b.fare);
+
+            document.getElementById('receipt-details').innerHTML = `
+                <div class="receipt-row"><span>Booking ID</span><strong>#${b.booking_id}</strong></div>
+                <div class="receipt-row"><span>Passenger Name</span><strong>${b.passenger_name}</strong></div>
+                <div class="receipt-row"><span>Phone Number</span><strong>${b.phone}</strong></div>
+                <div class="receipt-row"><span>Bus Name</span><strong>${b.bus_name}</strong></div>
+                <div class="receipt-row"><span>Route</span><strong>${b.source} → ${b.destination}</strong></div>
+                <div class="receipt-row"><span>Departure</span><strong>${b.departure_time}</strong></div>
+                <div class="receipt-row"><span>Seats Reserved</span><strong>${b.seat_number}</strong></div>
+                <div class="receipt-row"><span>Total Paid</span><strong style="color: #0b3d91; font-size: 18px;">₹${totalFare.toFixed(2)}</strong></div>
+            `;
+        });
+});
+</script>
+
+</body>
+</html>
