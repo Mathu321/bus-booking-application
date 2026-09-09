@@ -57,7 +57,7 @@
             <h4 style="color: #0b3d91; font-size: 1.2rem; margin-bottom: 20px;">Select Your Seat</h4>
             <div class="seat-grid-container" style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
                 <div class="driver-seat" style="text-align: right; margin-bottom: 15px; font-weight: 500; color: #555;"><span>🧭 Driver</span></div>
-                <div class="seat-grid" id="seat-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; justify-items: center;">
+                <div class="seat-grid" id="seat-grid" style="display: grid; grid-template-columns: repeat(2, 42px) 40px repeat(2, 42px); gap: 12px 10px; justify-content: center;">
                     <!-- Populated via API -->
                 </div>
             </div>
@@ -72,7 +72,7 @@
             <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 15px 0;">
             <div class="summary-row total-row" style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: #ffb703;">
                 <span>Total</span>
-                <strong id="summary-total">₹0.00</strong>
+                <strong id="summary-total">$0.00</strong>
             </div>
             <button type="submit" class="confirm-btn" style="width: 100%; background-color: #ffb703; color: #000; border: none; padding: 14px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px;">Confirm Booking</button>
         </div>
@@ -136,14 +136,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const grid = document.getElementById('seat-grid');
             let seatsHtml = '';
-            for(let i=1; i<=bus.total_seats; i++) {
-                const isBooked = booked.includes(String(i));
-                const cssClass = isBooked ? 'occupied' : 'available';
-                const clickAttr = isBooked ? '' : `onclick="toggleSeat(this, ${i})"`;
-                const inlineStyle = isBooked 
-                    ? 'background: #e5e5e5; border: 2px solid #ccc; color: #999; cursor: not-allowed; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold;'
-                    : 'background: white; border: 2px solid #0b3d91; color: #0b3d91; cursor: pointer; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold;';
-                seatsHtml += `<div class="seat ${cssClass}" ${clickAttr} style="${inlineStyle}">${i}</div>`;
+            let totalSeats = parseInt(bus.total_seats) || 41;
+            let seatCounter = 1;
+
+            while (seatCounter <= totalSeats) {
+                let seatsLeft = totalSeats - seatCounter + 1;
+                
+                if (seatsLeft <= 5 && seatsLeft > 0 && seatCounter > 1) {
+                    for (let i = 0; i < 5; i++) {
+                        if (i < seatsLeft) {
+                            const seatNum = seatCounter++;
+                            const isBooked = booked.includes(String(seatNum));
+                            const cssClass = isBooked ? 'occupied' : 'available';
+                            const clickAttr = isBooked ? '' : `onclick="toggleSeat(this, ${seatNum})"`;
+                            const inlineStyle = isBooked 
+                                ? 'background: #e5e5e5; border: 2px solid #ccc; color: #999; cursor: not-allowed; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold;'
+                                : 'background: white; border: 2px solid #0b3d91; color: #0b3d91; cursor: pointer; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold;';
+                            
+                            seatsHtml += `<div class="seat ${cssClass}" ${clickAttr} style="${inlineStyle}">${seatNum}</div>`;
+                        } else {
+                            seatsHtml += `<div></div>`;
+                        }
+                    }
+                    break;
+                } else {
+                    for (let pos = 1; pos <= 4; pos++) {
+                        if (seatCounter > totalSeats) {
+                            seatsHtml += `<div></div>`;
+                        } else {
+                            const seatNum = seatCounter++;
+                            const isBooked = booked.includes(String(seatNum));
+                            const cssClass = isBooked ? 'occupied' : 'available';
+                            const clickAttr = isBooked ? '' : `onclick="toggleSeat(this, ${seatNum})"`;
+                            const inlineStyle = isBooked 
+                                ? 'background: #e5e5e5; border: 2px solid #ccc; color: #999; cursor: not-allowed; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold;'
+                                : 'background: white; border: 2px solid #0b3d91; color: #0b3d91; cursor: pointer; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold;';
+                            
+                            seatsHtml += `<div class="seat ${cssClass}" ${clickAttr} style="${inlineStyle}">${seatNum}</div>`;
+                        }
+                        
+                        if (pos === 2) {
+                            seatsHtml += `<div class="aisle" style="width: 40px;"></div>`;
+                        }
+                    }
+                }
             }
             grid.innerHTML = seatsHtml;
         })
@@ -168,7 +204,7 @@ function toggleSeat(el, seatNum) {
     document.getElementById('selected_seats').value = selectedSeatsArray.join(',');
     
     document.getElementById('summary-seats').textContent = selectedSeatsArray.length > 0 ? selectedSeatsArray.join(', ') : 'Not selected';
-    document.getElementById('summary-total').textContent = `₹${(selectedSeatsArray.length * busFare).toFixed(2)}`;
+    document.getElementById('summary-total').textContent = `$${(selectedSeatsArray.length * busFare).toFixed(2)}`;
 }
 
 function submitBooking(e) {
