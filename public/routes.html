@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BusGo - Routes & Schedules</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 
@@ -13,7 +13,7 @@
     <div class="nav-links">
         <a href="index.html">Home</a>
         <a href="routes.html" style="font-weight: bold; color: #0b3d91;">Routes & Schedules</a>
-        <a href="admin/login.html" style="color: #d90429; font-weight: bold;">Admin Login</a>
+        <a href="../admin/login.html" style="color: #d90429; font-weight: bold;">Admin Login</a>
         <a href="booking.html" class="nav-btn">Book Ticket</a>
     </div>
 </nav>
@@ -42,7 +42,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    fetch('api/get_buses.php')
+    fetch('../api/get_buses.php')
         .then(res => res.json())
         .then(data => {
             const container = document.getElementById('routes-container');

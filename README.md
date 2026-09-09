@@ -1,19 +1,19 @@
 # BusGo - Bus Ticket Booking Web Application
 
-BusGo is a full-stack, lightweight web-based reservation system designed to simplify transit booking, route discovery, and fleet management[cite: 21, 23]. It features a responsive user interface, interactive seat selection, and a comprehensive administrative control panel[cite: 3, 4, 20].
+BusGo is a full-stack, lightweight web-based reservation system designed to simplify transit booking, route discovery, and fleet management. It features a responsive user interface, interactive seat selection, and a comprehensive administrative control panel[cite: 3, 4].
 
 ## Features
 
-* **Route Discovery & Search:** Instantly filter and find available buses based on departure locations and destinations[cite: 17, 21].
-* **Interactive Seat Map:** Real-time visual seat selection grid that dynamically differentiates between available, occupied, and selected seats[cite: 20].
-* **Streamlined Reservation Flow:** Multi-step booking process capturing passenger credentials and calculating dynamic reservation totals[cite: 20].
+* **Route Discovery & Search:** Instantly filter and find available buses based on departure locations and destinations.
+* **Interactive Seat Map:** Real-time visual seat selection grid that dynamically differentiates between available, occupied, and selected seats.
+* **Streamlined Reservation Flow:** Multi-step booking process capturing passenger credentials and calculating dynamic reservation totals.
 * **Admin Control Panel:** Secure login portal providing administrators with structured tabular interfaces to monitor customer bookings and manage fleet routes[cite: 3, 4, 5, 10].
 
 ## Tech Stack
 
-* **Frontend:** HTML5, CSS3, JavaScript (Fetch API)[cite: 20, 21, 22, 23]
-* **Backend:** Native PHP with PDO prepared statements[cite: 11, 12, 13, 14, 15, 16, 17, 18, 19]
-* **Database:** MySQL[cite: 15]
+* **Frontend:** HTML5, CSS3, JavaScript (Fetch API)
+* **Backend:** Native PHP with PDO prepared statements[cite: 11, 12, 13]
+* **Database:** MySQL
 
 ## Project Structure
 
@@ -35,11 +35,14 @@ bus_project/
 │   ├── get_buses.php
 │   ├── get_receipt.php
 │   └── get_routes.php
+├── config/
+│   └── db.php
 ├── css/
 │   └── style.css
-├── booking.html
-├── db.php
-├── index.html
-├── receipt.html
-├── routes.html
-└── schema.sql
+├── database/
+│   └── schema.sql
+└── public/
+    ├── booking.html
+    ├── index.html
+    ├── receipt.html
+    └── routes.html

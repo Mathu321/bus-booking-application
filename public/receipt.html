@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BusGo - Booking Receipt</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
     <style>
         .receipt-card {
             max-width: 600px;
@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    fetch(`api/get_receipt.php?id=${bookingId}`)
+    fetch(`../api/get_receipt.php?id=${bookingId}`)
         .then(res => res.json())
         .then(data => {
             if (!data.success) {

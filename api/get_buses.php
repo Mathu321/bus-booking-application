@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include '../db.php';
+include '../config/db.php';
 
 $source = $_GET['source'] ?? '';
 $destination = $_GET['destination'] ?? '';

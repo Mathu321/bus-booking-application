@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include '../db.php';
+include '../config/db.php';
 
 $bus_id = $_GET['bus_id'] ?? 1;
 

@@ -1,7 +1,7 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-include '../db.php';
+include '../config/db.php';
 
 if (!isset($_SESSION['admin_logged_in'])) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
