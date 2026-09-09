@@ -18,6 +18,7 @@ CREATE TABLE bookings (
     booking_id INT AUTO_INCREMENT PRIMARY KEY,
     passenger_name VARCHAR(100) NOT NULL,
     bus_id INT NOT NULL,
+    phone VARCHAR(50) NOT NULL,
     seat_number VARCHAR(100) NOT NULL,
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (bus_id) REFERENCES buses(bus_id) ON DELETE CASCADE

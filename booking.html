@@ -72,7 +72,7 @@
             <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 15px 0;">
             <div class="summary-row total-row" style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: #ffb703;">
                 <span>Total</span>
-                <strong id="summary-total">$0.00</strong>
+                <strong id="summary-total">₹0.00</strong>
             </div>
             <button type="submit" class="confirm-btn" style="width: 100%; background-color: #ffb703; color: #000; border: none; padding: 14px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px;">Confirm Booking</button>
         </div>
@@ -168,7 +168,7 @@ function toggleSeat(el, seatNum) {
     document.getElementById('selected_seats').value = selectedSeatsArray.join(',');
     
     document.getElementById('summary-seats').textContent = selectedSeatsArray.length > 0 ? selectedSeatsArray.join(', ') : 'Not selected';
-    document.getElementById('summary-total').textContent = `$${(selectedSeatsArray.length * busFare).toFixed(2)}`;
+    document.getElementById('summary-total').textContent = `₹${(selectedSeatsArray.length * busFare).toFixed(2)}`;
 }
 
 function submitBooking(e) {
