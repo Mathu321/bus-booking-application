@@ -12,25 +12,21 @@
     <div class="logo">🚌 BusGo</div>
     <div class="nav-links">
         <a href="index.html">Home</a>
-        <a href="routes.html" style="font-weight: bold; color: #0b3d91;">Routes & Schedules</a>
+        <a href="routes.html" style="color: #0b3d91; font-weight: bold;">Routes</a>
         <a href="../admin/login.html" style="color: #d90429; font-weight: bold;">Admin Login</a>
-        <a href="booking.html" class="nav-btn">Book Ticket</a>
+        <a href="booking.html" class="nav-btn" style="background-color: #0b3d91;">Book Ticket</a>
     </div>
 </nav>
 
-<section class="page-header">
-    <p>NETWORK DIRECTORY</p>
-    <h1>Routes & Timings</h1>
-    <span>Explore all available destinations and schedule timings across our fleet.</span>
+<section class="page-header" style="padding: 40px 20px; min-height: auto;">
+    <p>BUSGO</p>
+    <h1>Available Transit Routes</h1>
+    <span style="display: block; margin-top: 8px;">Explore our active origin and destination pathways</span>
 </section>
 
-<section class="bus-section" style="padding: 40px;">
-    <div class="section-heading">
-        <p>TIMETABLE</p>
-        <h2>Active Routes & Schedules</h2>
-    </div>
-    <div class="bus-container" id="routes-container">
-        <!-- Loaded via JavaScript API -->
+<section class="routes-section" style="max-width: 900px; margin: 30px auto; padding: 0 15px;">
+    <div id="routes-container" style="display: flex; flex-direction: column; gap: 15px;">
+        <!-- Populated via API -->
     </div>
 </section>
 
@@ -42,36 +38,35 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    fetch('../api/get_buses.php')
+    fetch('../api/get_routes.php')
         .then(res => res.json())
         .then(data => {
-            const container = document.getElementById('routes-container');
-            if (!Array.isArray(data) || data.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #777; grid-column: 1/-1;">No routes available.</p>';
+            const routesContainer = document.getElementById('routes-container');
+            if (!data || data.length === 0) {
+                routesContainer.innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">No routes available at the moment.</p>';
                 return;
             }
-            container.innerHTML = data.map(bus => `
-                <div class="bus-card">
-                    <div class="bus-image">🗺️</div>
-                    <div class="bus-details">
-                        <div class="bus-title">
-                            <h3>${bus.bus_name}</h3>
-                            <span class="bus-type">Route Schedule</span>
+
+            let routesHtml = '';
+            data.forEach(route => {
+                routesHtml += `
+                    <div class="route-card" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <span style="font-size: 2rem;">🛣️</span>
+                            <div>
+                                <h3 style="color: #0b3d91; margin: 0 0 5px 0; font-size: 1.1rem;">${route.source} → ${route.destination}</h3>
+                            </div>
                         </div>
-                        <p class="bus-number"><strong>Route:</strong> ${bus.source} → ${bus.destination}</p>
-                        <div class="bus-info">
-                            <span>🕒 Departure: ${bus.departure_time}</span>
-                            <span>💵 Fare: ₹${bus.fare}</span>
-                        </div>
-                        <div class="bus-bottom" style="margin-top: 15px;">
-                            <span style="font-size: 0.9rem; color: #555;">💺 ${bus.total_seats} Total Seats</span>
-                            <a href="booking.html?bus_id=${bus.bus_id}" class="view-btn">Book Route</a>
-                        </div>
+                        <a href="index.html?source=${encodeURIComponent(route.source)}&destination=${encodeURIComponent(route.destination)}" class="view-btn" style="background: #0b3d91; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">View Buses</a>
                     </div>
-                </div>
-            `).join('');
+                `;
+            });
+            routesContainer.innerHTML = routesHtml;
         })
-        .catch(err => console.error('Error loading routes:', err));
+        .catch(err => {
+            console.error('Error fetching routes:', err);
+            document.getElementById('routes-container').innerHTML = '<p style="text-align: center; color: red; padding: 20px;">Failed to load routes.</p>';
+        });
 });
 </script>
 
