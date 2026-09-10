@@ -39,7 +39,7 @@
                 </div>
                 <div class="input-group" style="flex: 1;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem;">Phone Number</label>
-                    <input type="text" id="p_phone" placeholder="Enter phone number" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                    <input type="text" id="p_phone" placeholder="Enter phone number" required  maxlength="10" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
                 </div>
             </div>
         </div>
