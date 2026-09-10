@@ -4,41 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BusGo - Home</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style.css?v=2">
 </head>
 <body>
 
 <nav class="navbar">
     <div class="logo">🚌 BusGo</div>
-    <div class="nav-links">
+    <div class="nav-links" id="nav-auth-links">
         <a href="index.html" style="font-weight: bold; color: #0b3d91;">Home</a>
         <a href="routes.html">Routes</a>
-        <a href="../admin/login.html" style="color: #d90429; font-weight: bold;">Admin Login</a>
-        <a href="booking.html" class="nav-btn">Book Ticket</a>
     </div>
 </nav>
 
-<section class="page-header">
+<section class="page-header" style="padding: 60px 20px 80px 20px;">
     <p>TRAVEL SMART. TRAVEL EASY.</p>
     <h1>Your Journey Starts Here</h1>
-    <span>Book bus tickets quickly and easily. Find your perfect journey and travel comfortably.</span>
+    <p style="margin-top: 10px; font-size: 1.1rem; opacity: 0.9;">Book bus tickets quickly and easily. Find your perfect journey and travel comfortably.</p>
 </section>
 
-<section class="search-section" style="max-width: 900px; margin: -40px auto 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); position: relative; z-index: 10;">
-    <div class="section-heading" style="margin-bottom: 20px;">
-        <p>FIND YOUR BUS</p>
-        <h2>Search Available Buses</h2>
+<!-- Enlarged Search Box Section -->
+<section class="search-section" style="max-width: 1050px; margin: -50px auto 50px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); position: relative; z-index: 10;">
+    <div class="section-heading" style="margin-bottom: 25px;">
+        <p style="font-size: 0.85rem; font-weight: 600; color: #fca311; letter-spacing: 1.5px;">FIND YOUR BUS</p>
+        <h2 style="font-size: 2rem; color: #0b3d91;">Search Available Buses</h2>
     </div>
-    <form onsubmit="searchBuses(event)" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
-        <div class="input-group" style="flex: 1; min-width: 200px;">
-            <label>From</label>
-            <input type="text" id="search_source" placeholder="Enter departure city">
+    <form onsubmit="searchBuses(event)" style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end;">
+        <div class="input-group" style="flex: 1; min-width: 250px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 1rem; color: #333;">From</label>
+            <input type="text" id="search_source" placeholder="Enter departure city" style="width: 100%; padding: 15px 18px; font-size: 1.05rem; border: 1px solid #cbd5e1; border-radius: 10px; background: #f8fafc;">
         </div>
-        <div class="input-group" style="flex: 1; min-width: 200px;">
-            <label>To</label>
-            <input type="text" id="search_destination" placeholder="Enter destination">
+        <div class="input-group" style="flex: 1; min-width: 250px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 1rem; color: #333;">To</label>
+            <input type="text" id="search_destination" placeholder="Enter destination" style="width: 100%; padding: 15px 18px; font-size: 1.05rem; border: 1px solid #cbd5e1; border-radius: 10px; background: #f8fafc;">
         </div>
-        <button type="submit" class="confirm-btn" style="height: 48px; padding: 0 30px;">Search Bus</button>
+        <button type="submit" style="background-color: #ffb703; color: #1e293b; border: none; height: 54px; padding: 0 35px; font-size: 1.1rem; font-weight: bold; border-radius: 10px; cursor: pointer; transition: background 0.2s;">Search Bus</button>
     </form>
 </section>
 
@@ -60,6 +59,20 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+    fetch('../api/check_session.php')
+    .then(res => res.json())
+    .then(data => {
+        const navContainer = document.getElementById('nav-auth-links');
+        if (data.logged_in) {
+            navContainer.innerHTML += `
+                <a href="my_tickets.html">My Tickets</a>
+                <span style="font-weight: 600; color: #0b3d91; margin-left: 5px;">Hi, ${data.name}</span>
+                <a href="#" onclick="handleLogout(event)" style="color: #d90429; font-weight: bold; margin-left: 5px;">Logout</a>`;
+            }   else {
+                navContainer.innerHTML += `<a href="../entry.html" class="nav-btn" style="margin-left: 5px;">Sign In</a>`;
+            }
+    });
+
     const urlParams = new URLSearchParams(window.location.search);
     const sourceParam = urlParams.get('source') || '';
     const destParam = urlParams.get('destination') || '';
@@ -72,6 +85,17 @@ document.addEventListener("DOMContentLoaded", () => {
         loadBuses();
     }
 });
+
+function handleLogout(e) {
+    e.preventDefault();
+    fetch('../api/logout.php')
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            window.location.href = data.redirect;
+        }
+    });
+}
 
 function loadBuses(source = '', destination = '') {
     let url = '../api/get_buses.php';

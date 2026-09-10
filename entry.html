@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusGo - Welcome</title>
+    <link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🚌 BusGo</div>
+    <div class="nav-links">
+        <a href="public/routes.html">Routes</a>
+    </div>
+</nav>
+
+<section class="page-header" style="padding: 60px 20px;">
+    <p>BUSGO RESERVATION SYSTEM</p>
+    <h1>Welcome! Please Select Your Portal</h1>
+    <p style="margin-top: 10px; opacity: 0.9;">Choose how you want to access the platform</p>
+</section>
+
+<section class="bus-section" style="max-width: 900px; margin: 40px auto; padding: 0 15px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
+        
+        <!-- Passenger Portal -->
+        <div style="background: white; padding: 40px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="font-size: 3rem; margin-bottom: 15px;">🎟️</div>
+                <h3 style="color: #0b3d91; font-size: 1.5rem; margin-bottom: 15px;">Passenger Portal</h3>
+                <p style="color: #666; font-size: 0.95rem; line-height: 1.5; margin-bottom: 30px;">
+                    Search active routes, browse bus schedules, pick your preferred seats, and book tickets instantly.
+                </p>
+            </div>
+            <div>
+                <a href="public/login.html" class="view-btn" style="text-decoration: none; padding: 14px; font-size: 1rem; border-radius: 8px; display: block;">Passenger Login</a>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div style="background: white; padding: 40px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="font-size: 3rem; margin-bottom: 15px;">⚙️</div>
+                <h3 style="color: #0b3d91; font-size: 1.5rem; margin-bottom: 15px;">Admin Dashboard</h3>
+                <p style="color: #666; font-size: 0.95rem; line-height: 1.5; margin-bottom: 30px;">
+                    Manage fleet schedules, add or remove buses, update fares, and monitor incoming passenger bookings.
+                </p>
+            </div>
+            <div>
+                <a href="admin/login.html" style="background-color: #d90429; color: white; text-decoration: none; padding: 14px; font-size: 1rem; font-weight: bold; border-radius: 8px; display: block;">Admin Login</a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<footer>
+    <div class="footer-logo">🚌 BusGo</div>
+    <p>Bus Ticket Reservation System</p>
+    <p class="copyright">© 2026 BusGo. All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>

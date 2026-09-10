@@ -4,29 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BusGo - Routes & Schedules</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style.css?v=2">
 </head>
 <body>
 
 <nav class="navbar">
     <div class="logo">🚌 BusGo</div>
-    <div class="nav-links">
+    <div class="nav-links" id="nav-links">
         <a href="index.html">Home</a>
-        <a href="routes.html" style="color: #0b3d91; font-weight: bold;">Routes</a>
-        <a href="../admin/login.html" style="color: #d90429; font-weight: bold;">Admin Login</a>
-        <a href="booking.html" class="nav-btn" style="background-color: #0b3d91;">Book Ticket</a>
+        <a href="routes.html" style="font-weight: bold; color: #0b3d91;">Routes</a>
     </div>
 </nav>
 
-<section class="page-header" style="padding: 40px 20px; min-height: auto;">
+<section class="page-header">
     <p>BUSGO</p>
     <h1>Available Transit Routes</h1>
-    <span style="display: block; margin-top: 8px;">Explore our active origin and destination pathways</span>
+    <span>Explore our active origin and destination pathways</span>
 </section>
 
-<section class="routes-section" style="max-width: 900px; margin: 30px auto; padding: 0 15px;">
-    <div id="routes-container" style="display: flex; flex-direction: column; gap: 15px;">
-        <!-- Populated via API -->
+<section class="bus-section">
+    <div class="section-heading">
+        <p>ROUTES</p>
+        <h2>Select a Route</h2>
+    </div>
+    <div class="bus-container" id="routes-container">
+        <!-- Loaded via JavaScript API -->
     </div>
 </section>
 
@@ -38,36 +40,68 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    fetch('../api/get_routes.php')
-        .then(res => res.json())
-        .then(data => {
-            const routesContainer = document.getElementById('routes-container');
-            if (!data || data.length === 0) {
-                routesContainer.innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">No routes available at the moment.</p>';
-                return;
-            }
+    fetch('../api/check_session.php')
+    .then(res => res.json())
+    .then(data => {
+        const navContainer = document.getElementById('nav-links');
+        if (data.logged_in) {
+            navContainer.innerHTML += `
+                <a href="my_tickets.html">My Tickets</a>
+                <span style="font-weight: 600; color: #0b3d91; margin-left: 5px;">Hi, ${data.name}</span>
+                <a href="#" onclick="handleLogout(event)" style="color: #d90429; font-weight: bold; margin-left: 5px;">Logout</a>
+            `;
+        } else {
+            navContainer.innerHTML += `
+            <a href="../entry.html" class="nav-btn" style="margin-left: 5px;">Sign In</a>`;
+        }
+    });
 
-            let routesHtml = '';
-            data.forEach(route => {
-                routesHtml += `
-                    <div class="route-card" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
-                        <div style="display: flex; align-items: center; gap: 20px;">
-                            <span style="font-size: 2rem;">🛣️</span>
-                            <div>
-                                <h3 style="color: #0b3d91; margin: 0 0 5px 0; font-size: 1.1rem;">${route.source} → ${route.destination}</h3>
-                            </div>
-                        </div>
-                        <a href="index.html?source=${encodeURIComponent(route.source)}&destination=${encodeURIComponent(route.destination)}" class="view-btn" style="background: #0b3d91; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">View Buses</a>
-                    </div>
-                `;
-            });
-            routesContainer.innerHTML = routesHtml;
-        })
-        .catch(err => {
-            console.error('Error fetching routes:', err);
-            document.getElementById('routes-container').innerHTML = '<p style="text-align: center; color: red; padding: 20px;">Failed to load routes.</p>';
+    const urlParams = new URLSearchParams(window.location.search);
+    const sourceQuery = urlParams.get('source')?.toLowerCase().trim() || '';
+    const destQuery = urlParams.get('destination')?.toLowerCase().trim() || '';
+
+    fetch('../api/get_routes.php')
+    .then(res => res.json())
+    .then(data => {
+        const container = document.getElementById('routes-container');
+        container.innerHTML = '';
+
+        const filteredRoutes = data.filter(route => {
+            const matchesSource = !sourceQuery || route.source.toLowerCase().includes(sourceQuery);
+            const matchesDest = !destQuery || route.destination.toLowerCase().includes(destQuery);
+            return matchesSource && matchesDest;
         });
+
+        if (filteredRoutes.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #777; grid-column: 1/-1;">No matching routes found.</p>';
+            return;
+        }
+
+        filteredRoutes.forEach(route => {
+            container.innerHTML += `
+                <div class="bus-card" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
+                    <div>
+                        <div class="bus-image" style="font-size: 1.5rem; margin-bottom: 10px; width: fit-content; padding: 10px;">🛣️</div>
+                        <h3 style="color: #0b3d91; font-size: 1.2rem;">${route.source} → ${route.destination}</h3>
+                    </div>
+                    <a href="index.html?source=${encodeURIComponent(route.source)}&destination=${encodeURIComponent(route.destination)}" class="view-btn" style="text-decoration: none; padding: 10px 20px;">View Buses</a>
+                </div>
+            `;
+        });
+    })
+    .catch(err => console.error('Error loading routes:', err));
 });
+
+function handleLogout(e) {
+    e.preventDefault();
+    fetch('../api/logout.php')
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            window.location.href = data.redirect;
+        }
+    });
+}
 </script>
 
 </body>

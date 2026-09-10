@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BusGo - Book Ticket</title>
+    <title>BusGo Admin - Book Ticket</title>
     <link rel="stylesheet" href="../css/style.css?v=2">
 </head>
 <body>
 
 <nav class="navbar">
-    <div class="logo">🚌 BusGo</div>
-    <div class="nav-links" id="nav-links">
-        <a href="index.html">Home</a>
-        <a href="routes.html">Routes</a>
+    <div class="logo">🚌 BusGo Admin</div>
+    <div class="nav-links">
+        <a href="dashboard.html">Manage Buses</a>
+        <a href="bookings.html">All Bookings</a>
+        <a href="admin_bookings.html">My Bookings</a>
+        <a href="../public/index.html" class="nav-btn" style="background-color: #d90429;">Logout</a>
     </div>
 </nav>
 
 <section class="page-header" style="padding: 40px 20px; min-height: auto;">
-    <p>BUSGO</p>
-    <h1>Book Your Ticket</h1>
-    <span style="display: block; margin-top: 8px;">Enter your details and reserve your seat</span>
+    <p>ADMIN PORTAL</p>
+    <h1>Book Ticket for Passenger</h1>
+    <span style="display: block; margin-top: 8px;">Enter passenger details and select their seats</span>
 </section>
 
 <section class="bus-section" style="max-width: 800px; margin: 30px auto; padding: 0 15px;">
@@ -37,7 +39,7 @@
                 </div>
                 <div class="input-group" style="flex: 1;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem;">Phone Number</label>
-                    <input type="text" id="p_phone" placeholder="Enter phone number" required  maxlength="10" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                    <input type="text" id="p_phone" placeholder="Enter phone number" required maxlength="10" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
                 </div>
             </div>
         </div>
@@ -52,7 +54,7 @@
 
         <div class="booking-step" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
             <h3 style="color: #fca311; font-size: 0.85rem; margin-bottom: 5px;">STEP 3</h3>
-            <h4 style="color: #0b3d91; font-size: 1.2rem; margin-bottom: 20px;">Select Your Seat</h4>
+            <h4 style="color: #0b3d91; font-size: 1.2rem; margin-bottom: 20px;">Select Seat</h4>
             <div class="seat-grid-container" style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
                 <div class="driver-seat" style="text-align: right; margin-bottom: 15px; font-weight: 500; color: #555;"><span>🧭 Driver</span></div>
                 <div class="seat-grid" id="seat-grid" style="display: grid; grid-template-columns: repeat(2, 42px) 40px repeat(2, 42px); gap: 12px 10px; justify-content: center;">
@@ -90,33 +92,16 @@ let busFare = 0;
 let selectedSeatsArray = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-    fetch('../api/check_session.php')
-    .then(res => res.json())
-    .then(data => {
-        const navContainer = document.getElementById('nav-links');
-        if (!data.logged_in) {
-            alert('Please sign in to book a ticket.');
-            window.location.href = 'login.html';
-            return;
-        } else {
-            navContainer.innerHTML += `
-                <a href="my_tickets.html">My Tickets</a>
-                <span style="font-weight: 600; color: #0b3d91; margin-left: 5px;">Hi, ${data.name}</span>
-                <a href="#" onclick="handleLogout(event)" style="color: #d90429; font-weight: bold; margin-left: 5px;">Logout</a>
-            `;
-        }
-    });
-
     const journeyContainer = document.getElementById('journey-card');
     
     if (!busId) {
         journeyContainer.innerHTML = `
             <div style="text-align: center; padding: 20px;">
                 <p style="color: #777; margin-bottom: 15px;">No bus selected for booking.</p>
-                <a href="routes.html" class="view-btn" style="display: inline-block; text-decoration: none; background: #0b3d91; color: white; padding: 10px 20px; border-radius: 6px;">Choose a Bus Route</a>
+                <a href="dashboard.html" class="view-btn" style="display: inline-block; text-decoration: none; background: #0b3d91; color: white; padding: 10px 20px; border-radius: 6px;">Back to Dashboard</a>
             </div>
         `;
-        document.getElementById('seat-grid').innerHTML = '<p style="text-align: center; color: #777; grid-column: 1/-1;">Please select a bus route first.</p>';
+        document.getElementById('seat-grid').innerHTML = '<p style="text-align: center; color: #777; grid-column: 1/-1;">Please select a bus first.</p>';
         return;
     }
 
@@ -201,17 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(err => console.error('Error loading booking details:', err));
 });
 
-function handleLogout(e) {
-    e.preventDefault();
-    fetch('../api/logout.php')
-    .then(res => res.json())
-    .then(data => {
-        if(data.success) {
-            window.location.href = data.redirect;
-        }
-    });
-}
-
 function toggleSeat(el, seatNum) {
     if (el.classList.contains('occupied')) return;
     
@@ -237,8 +211,8 @@ function submitBooking(e) {
     e.preventDefault();
     const payload = {
         bus_id: document.getElementById('bus_id').value,
-        passenger_name: document.getElementById('p_name').value,
-        phone: document.getElementById('p_phone').value,
+        passenger_name: document.getElementById('p_name').value.trim(),
+        phone: document.getElementById('p_phone').value.trim(),
         seat_numbers: document.getElementById('selected_seats').value
     };
 
@@ -247,7 +221,7 @@ function submitBooking(e) {
         return;
     }
 
-    fetch('../api/book_ticket.php', {
+    fetch('../api/admin_book_ticket.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload)
@@ -255,7 +229,8 @@ function submitBooking(e) {
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            window.location.href = `receipt.html?id=${data.booking_id}`;
+            alert(data.message);
+            window.location.href = 'admin_bookings.html';
         } else {
             alert(data.message || 'Booking failed.');
         }

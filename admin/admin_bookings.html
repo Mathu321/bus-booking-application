@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BusGo Admin - View Bookings</title>
+    <title>BusGo Admin - My Bookings</title>
     <link rel="stylesheet" href="../css/style.css?v=2">
     <style>
         .table-responsive {
@@ -81,16 +81,16 @@
     <div class="logo">🚌 BusGo Admin</div>
     <div class="nav-links">
         <a href="dashboard.html">Dashboard</a>
-        <a href="bookings.html" style="font-weight: bold; color: #0b3d91;">All Bookings</a>
-        <a href="admin_bookings.html">My Bookings</a>
+        <a href="bookings.html">All Bookings</a>
+        <a href="admin_bookings.html" style="font-weight: bold; color: #0b3d91;">My Bookings</a>
         <a href="../public/index.html" class="nav-btn" style="background-color: #d90429;">Logout</a>
     </div>
 </nav>
 
 <section class="bus-section" style="padding: 30px 20px;">
     <div class="section-heading" style="margin-bottom: 25px;">
-        <p>CONTROL PANEL</p>
-        <h2>Customer & Admin Bookings</h2>
+        <p>ADMIN PORTAL</p>
+        <h2>Tickets Booked by You</h2>
     </div>
     
     <div class="table-responsive">
@@ -100,13 +100,13 @@
                     <th>ID</th>
                     <th>Passenger Name</th>
                     <th>Bus</th>
+                    <th>Route</th>
                     <th>Phone</th>
-                    <th>Seats</th>
-                    <th>Booked By</th>
+                    <th>Seat</th>
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody id="bookings-table-body">
+            <tbody id="admin-bookings-body">
                 <!-- Loaded via API -->
             </tbody>
         </table>
@@ -121,16 +121,16 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    loadAdminBookings();
+    loadMyBookings();
 });
 
-function loadAdminBookings() {
-    fetch('../api/admin_get_bookings.php')
+function loadMyBookings() {
+    fetch('../api/admin_get_my_bookings.php')
         .then(res => res.json())
         .then(data => {
-            const tbody = document.getElementById('bookings-table-body');
+            const tbody = document.getElementById('admin-bookings-body');
             if(!Array.isArray(data) || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #777; padding: 30px;">No bookings found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #777; padding: 30px;">You have not booked any tickets yet.</td></tr>';
                 return;
             }
             tbody.innerHTML = data.map(b => `
@@ -138,23 +138,23 @@ function loadAdminBookings() {
                     <td><span class="badge-id">#${b.booking_id}</span></td>
                     <td><strong>${b.passenger_name}</strong></td>
                     <td>${b.bus_name}</td>
+                    <td>${b.source} → ${b.destination}</td>
                     <td>${b.phone}</td>
                     <td><span class="badge-seat">${b.seat_number}</span></td>
-                    <td><span style="color: #475569; font-size: 0.9rem; font-weight: 500;">${b.booked_by ? 'Admin (' + b.booked_by + ')' : 'Passenger'}</span></td>
                     <td>
-                        <button class="action-btn" onclick="adminCancelTicket(${b.booking_id})">Cancel</button>
+                        <button class="action-btn" onclick="cancelBooking(${b.booking_id})">Cancel</button>
                     </td>
                 </tr>
             `).join('');
         })
         .catch(err => {
-            console.error('Error fetching bookings:', err);
-            document.getElementById('bookings-table-body').innerHTML = '<tr><td colspan="7" style="text-align: center; color: red; padding: 30px;">Error loading bookings.</td></tr>';
+            console.error('Error:', err);
+            document.getElementById('admin-bookings-body').innerHTML = '<tr><td colspan="7" style="text-align: center; color: red; padding: 30px;">Error loading bookings.</td></tr>';
         });
 }
 
-function adminCancelTicket(bookingId) {
-    if(!confirm('Are you sure you want to cancel this booking?')) return;
+function cancelBooking(bookingId) {
+    if(!confirm('Are you sure you want to cancel this ticket?')) return;
 
     fetch('../api/cancel_ticket.php', {
         method: 'POST',
@@ -164,10 +164,10 @@ function adminCancelTicket(bookingId) {
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            alert('Booking cancelled successfully.');
-            loadAdminBookings();
+            alert('Ticket cancelled successfully.');
+            loadMyBookings();
         } else {
-            alert(data.message || 'Failed to cancel booking.');
+            alert(data.message || 'Failed to cancel ticket.');
         }
     });
 }

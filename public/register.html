@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusGo - Passenger Registration</title>
+    <link rel="stylesheet" href="../css/style.css?v=2">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🚌 BusGo</div>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+    </div>
+</nav>
+
+<section class="page-header" style="padding: 40px 20px; min-height: auto;">
+    <p>CREATE ACCOUNT</p>
+    <h1>Passenger Registration</h1>
+</section>
+
+<section style="width: 100%; max-width: 480px; margin: 40px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+    <form id="register-form" onsubmit="handleRegister(event)" style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="input-group">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem;">Full Name</label>
+            <input type="text" id="name" placeholder="Enter your full name" required style="width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem;">
+        </div>
+
+        <div class="input-group">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem;">Email Address</label>
+            <input type="email" id="email" placeholder="Enter your email" required style="width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem;">
+        </div>
+
+        <div class="input-group">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem;">Password</label>
+            <input type="password" id="password" placeholder="Create a password" required style="width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem;">
+        </div>
+
+        <button type="submit" style="width: 100%; background-color: #0b3d91; color: white; border: none; padding: 14px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;">Register Account</button>
+        
+        <p style="text-align: center; font-size: 0.95rem; color: #666; margin-top: 10px;">
+            Already have an account? <a href="login.html" style="color: #0b3d91; font-weight: bold; text-decoration: none;">Sign in</a>
+        </p>
+    </form>
+</section>
+
+<footer>
+    <div class="footer-logo">🚌 BusGo</div>
+    <p>Bus Ticket Reservation System</p>
+    <p class="copyright">© 2026 BusGo. All Rights Reserved.</p>
+</footer>
+
+<script>
+function handleRegister(e) {
+    e.preventDefault();
+    const payload = {
+        name: document.getElementById('name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value
+    };
+
+    fetch('../api/register.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            alert('Registration successful! Please sign in.');
+            window.location.href = 'login.html';
+        } else {
+            alert(data.message || 'Registration failed.');
+        }
+    })
+    .catch(err => {
+        console.error('Registration error:', err);
+        alert('An error occurred during registration.');
+    });
+}
+</script>
+
+</body>
+</html>

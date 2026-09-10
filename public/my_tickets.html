@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusGo - My Booked Tickets</title>
+    <link rel="stylesheet" href="../css/style.css?v=2">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🚌 BusGo</div>
+    <div class="nav-links" id="nav-links">
+        <a href="index.html">Home</a>
+        <a href="routes.html">Routes</a>
+    </div>
+</nav>
+
+<section class="page-header" style="padding: 40px 20px; min-height: auto;">
+    <p>DASHBOARD</p>
+    <h1>My Booked Tickets</h1>
+</section>
+
+<section class="bus-section" style="max-width: 900px; margin: 30px auto; padding: 0 15px;">
+    <div id="tickets-container" style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- Populated via JavaScript -->
+    </div>
+</section>
+
+<footer>
+    <div class="footer-logo">🚌 BusGo</div>
+    <p>Bus Ticket Reservation System</p>
+    <p class="copyright">© 2026 BusGo. All Rights Reserved.</p>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    fetch('../api/check_session.php')
+    .then(res => res.json())
+    .then(data => {
+        const navContainer = document.getElementById('nav-links');
+        if (!data.logged_in) {
+            alert('Please sign in to view your tickets.');
+            window.location.href = '../entry.html';
+        } else {
+            navContainer.innerHTML += `
+                <a href="my_tickets.html" style="font-weight: bold; color: #0b3d91;">My Tickets</a>
+                <span style="font-weight: 600; color: #0b3d91; margin-left: 5px;">Hi, ${data.name}</span>
+                <a href="#" onclick="handleLogout(event)" style="color: #d90429; font-weight: bold; margin-left: 5px;">Logout</a>
+            `;
+            loadUserTickets();
+        }
+    });
+});
+
+function loadUserTickets() {
+    fetch('../api/get_user_bookings.php')
+    .then(res => res.json())
+    .then(data => {
+        const container = document.getElementById('tickets-container');
+        if (!data.success || data.bookings.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #777; padding: 30px; background: white; border-radius: 12px;">You have no booked tickets yet.</p>';
+            return;
+        }
+
+        container.innerHTML = data.bookings.map(ticket => `
+            <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <span style="background: #e3f2fd; color: #0b3d91; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;">Booking ID: #${ticket.booking_id}</span>
+                    <h3 style="color: #0b3d91; font-size: 1.2rem; margin: 10px 0 5px 0;">${ticket.bus_name} (${ticket.source} → ${ticket.destination})</h3>
+                    <p style="color: #555; font-size: 0.9rem; margin: 3px 0;">Passenger: <strong>${ticket.passenger_name}</strong> | Phone: ${ticket.phone}</p>
+                    <p style="color: #555; font-size: 0.9rem; margin: 3px 0;">Seat(s): <strong>${ticket.seat_number}</strong> | Departure: ${ticket.departure_time}</p>
+                </div>
+                <div>
+                    <button onclick="cancelTicket(${ticket.booking_id})" style="background-color: #d90429; color: white; border: none; padding: 10px 18px; font-weight: bold; border-radius: 8px; cursor: pointer;">Cancel Ticket</button>
+                </div>
+            </div>
+        `).join('');
+    });
+}
+
+function cancelTicket(bookingId) {
+    if(!confirm('Are you sure you want to cancel this booking?')) return;
+
+    fetch('../api/cancel_ticket.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({booking_id: bookingId})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            alert('Ticket cancelled successfully.');
+            loadUserTickets();
+        } else {
+            alert(data.message || 'Failed to cancel ticket.');
+        }
+    });
+}
+
+function handleLogout(e) {
+    e.preventDefault();
+    fetch('../api/logout.php')
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) window.location.href = data.redirect;
+    });
+}
+</script>
+
+</body>
+</html>
