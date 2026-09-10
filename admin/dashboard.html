@@ -50,8 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         </div>
                         <p class="bus-number">${bus.source} → ${bus.destination}</p>
                         <div class="bus-info">
-                            <span>💺 ${bus.total_seats} Seats</span>
-                            <span>💵 ₹${bus.fare}</span>
+                            <span>Seats: ${bus.total_seats}</span>
+                            <span>Fare: ₹${bus.fare}</span>
                         </div>
                         <div style="display: flex; gap: 10px; margin-top: 10px;">
                             <a href="edit_bus.html?id=${bus.bus_id}" class="view-btn" style="text-decoration:none; background-color:#ffb703; color:#222;">Edit</a>
