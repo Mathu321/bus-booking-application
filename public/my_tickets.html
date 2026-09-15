@@ -63,19 +63,30 @@ function loadUserTickets() {
             return;
         }
 
-        container.innerHTML = data.bookings.map(ticket => `
-            <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <div>
-                    <span style="background: #e3f2fd; color: #0b3d91; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;">Booking ID: #${ticket.booking_id}</span>
-                    <h3 style="color: #0b3d91; font-size: 1.2rem; margin: 10px 0 5px 0;">${ticket.bus_name} (${ticket.source} → ${ticket.destination})</h3>
-                    <p style="color: #555; font-size: 0.9rem; margin: 3px 0;">Passenger: <strong>${ticket.passenger_name}</strong> | Phone: ${ticket.phone}</p>
-                    <p style="color: #555; font-size: 0.9rem; margin: 3px 0;">Seat(s): <strong>${ticket.seat_number}</strong> | Departure: ${ticket.departure_time}</p>
+        container.innerHTML = data.bookings.map(ticket => {
+            const isCancelled = ticket.status === 'Cancelled';
+            const statusBadge = isCancelled 
+                ? `<span style="background: #fee2e2; color: #dc2626; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;">Status: Cancelled</span>` 
+                : `<span style="background: #e3f2fd; color: #0b3d91; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;">Booking ID: #${ticket.booking_id}</span>`;
+
+            const actionButton = isCancelled 
+                ? `<span style="color: #999; font-size: 0.9rem; font-weight: 500;">Ticket Cancelled</span>` 
+                : `<button onclick="cancelTicket(${ticket.booking_id})" style="background-color: #d90429; color: white; border: none; padding: 10px 18px; font-weight: bold; border-radius: 8px; cursor: pointer;">Cancel Ticket</button>`;
+
+            return `
+                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; opacity: ${isCancelled ? '0.7' : '1'};">
+                    <div>
+                        ${statusBadge}
+                        <h3 style="color: #0b3d91; font-size: 1.2rem; margin: 10px 0 5px 0;">${ticket.bus_name} (${ticket.source} → ${ticket.destination})</h3>
+                        <p style="color: #555; font-size: 0.9rem; margin: 3px 0;">Passenger: <strong>${ticket.passenger_name}</strong> | Phone: ${ticket.phone}</p>
+                        <p style="color: #555; font-size: 0.9rem; margin: 3px 0;">Seat(s): <strong>${ticket.seat_number}</strong> | Departure: ${ticket.departure_time}</p>
+                    </div>
+                    <div>
+                        ${actionButton}
+                    </div>
                 </div>
-                <div>
-                    <button onclick="cancelTicket(${ticket.booking_id})" style="background-color: #d90429; color: white; border: none; padding: 10px 18px; font-weight: bold; border-radius: 8px; cursor: pointer;">Cancel Ticket</button>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     });
 }
 

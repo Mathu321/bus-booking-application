@@ -12,7 +12,7 @@ $admin_username = $_SESSION['admin_username'] ?? '';
 
 try {
     $stmt = $pdo->prepare("
-        SELECT b.booking_id, b.passenger_name, b.phone, b.seat_number, bus.bus_name, bus.source, bus.destination, bus.departure_time 
+        SELECT b.booking_id, b.passenger_name, b.phone, b.seat_number, b.status, bus.bus_name, bus.source, bus.destination, bus.departure_time 
         FROM bookings b 
         JOIN buses bus ON b.bus_id = bus.bus_id 
         WHERE b.booked_by = ? 

@@ -229,8 +229,7 @@ function submitBooking(e) {
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            alert(data.message);
-            window.location.href = 'admin_bookings.html';
+            window.location.href = `../public/receipt.html?id=${data.booking_id}`;
         } else {
             alert(data.message || 'Booking failed.');
         }

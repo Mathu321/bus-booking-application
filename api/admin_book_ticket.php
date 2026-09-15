@@ -20,25 +20,13 @@ if (!$bus_id || empty($passenger_name) || empty($phone) || empty($seat_numbers))
     exit;
 }
 
-$seats = explode(',', $seat_numbers);
-$success_count = 0;
-
-$pdo->beginTransaction();
 try {
     $stmt = $pdo->prepare("INSERT INTO bookings (bus_id, passenger_name, phone, seat_number, user_id, booked_by) VALUES (?, ?, ?, ?, NULL, ?)");
-    
-    foreach ($seats as $seat) {
-        $seat = trim($seat);
-        if (!empty($seat)) {
-            $stmt->execute([$bus_id, $passenger_name, $phone, $seat, $admin_username]);
-            $success_count++;
-        }
-    }
-    
-    $pdo->commit();
-    echo json_encode(['success' => true, 'message' => "Successfully booked {$success_count} seat(s)."]);
-} catch (Exception $e) {
-    $pdo->rollBack();
+    $stmt->execute([$bus_id, $passenger_name, $phone, $seat_numbers, $admin_username]);
+    $booking_id = $pdo->lastInsertId();
+
+    echo json_encode(['success' => true, 'booking_id' => $booking_id, 'message' => 'Booking successful.']);
+} catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
 ?>

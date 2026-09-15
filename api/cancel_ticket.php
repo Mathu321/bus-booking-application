@@ -11,14 +11,19 @@ if (!$booking_id) {
 }
 
 try {
-    $stmt = $pdo->prepare("DELETE FROM bookings WHERE booking_id = ?");
+    $check = $pdo->prepare("SELECT booking_id, status FROM bookings WHERE booking_id = ?");
+    $check->execute([$booking_id]);
+    $booking = $check->fetch(PDO::FETCH_ASSOC);
+
+    if (!$booking) {
+        echo json_encode(['success' => false, 'message' => 'Booking ID not found.']);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("UPDATE bookings SET status = 'Cancelled' WHERE booking_id = ?");
     $stmt->execute([$booking_id]);
 
-    if ($stmt->rowCount() > 0) {
-        echo json_encode(['success' => true, 'message' => 'Ticket cancelled successfully.']);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Booking ID not found.']);
-    }
+    echo json_encode(['success' => true, 'message' => 'Ticket cancelled successfully.']);
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }

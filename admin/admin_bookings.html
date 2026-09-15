@@ -58,6 +58,15 @@
             font-size: 0.85rem;
             border: 1px solid #dbeafe;
         }
+        .badge-cancelled {
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: 1px solid #fecaca;
+        }
         .action-btn {
             background-color: #fff1f2;
             color: #e11d48;
@@ -133,19 +142,28 @@ function loadMyBookings() {
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #777; padding: 30px;">You have not booked any tickets yet.</td></tr>';
                 return;
             }
-            tbody.innerHTML = data.map(b => `
-                <tr>
-                    <td><span class="badge-id">#${b.booking_id}</span></td>
-                    <td><strong>${b.passenger_name}</strong></td>
-                    <td>${b.bus_name}</td>
-                    <td>${b.source} → ${b.destination}</td>
-                    <td>${b.phone}</td>
-                    <td><span class="badge-seat">${b.seat_number}</span></td>
-                    <td>
-                        <button class="action-btn" onclick="cancelBooking(${b.booking_id})">Cancel</button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = data.map(b => {
+                const isCancelled = b.status === 'Cancelled';
+                const seatBadge = isCancelled 
+                    ? `<span class="badge-cancelled">Cancelled</span>` 
+                    : `<span class="badge-seat">${b.seat_number}</span>`;
+
+                const actionButton = isCancelled 
+                    ? `<span style="color: #94a3b8; font-size: 0.85rem; font-weight: 500;">N/A</span>` 
+                    : `<button class="action-btn" onclick="cancelBooking(${b.booking_id})">Cancel</button>`;
+
+                return `
+                    <tr style="opacity: ${isCancelled ? '0.65' : '1'};">
+                        <td><span class="badge-id">#${b.booking_id}</span></td>
+                        <td><strong>${b.passenger_name}</strong></td>
+                        <td>${b.bus_name}</td>
+                        <td>${b.source} → ${b.destination}</td>
+                        <td>${b.phone}</td>
+                        <td>${seatBadge}</td>
+                        <td>${actionButton}</td>
+                    </tr>
+                `;
+            }).join('');
         })
         .catch(err => {
             console.error('Error:', err);

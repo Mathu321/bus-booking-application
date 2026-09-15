@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 
 try {
     $stmt = $pdo->prepare("
-        SELECT b.booking_id, b.seat_number, b.passenger_name, b.phone, bu.bus_name, bu.source, bu.destination, bu.departure_time, bu.fare 
+        SELECT b.booking_id, b.seat_number, b.passenger_name, b.phone, b.status, bu.bus_name, bu.source, bu.destination, bu.departure_time, bu.fare 
         FROM bookings b 
         JOIN buses bu ON b.bus_id = bu.bus_id 
         WHERE b.user_id = ?
